@@ -17,7 +17,7 @@
 import 'reflect-metadata';
 
 import * as compiler from '@angular/compiler';
-import {ComponentMetadata, NgModuleMetadata, ViewEncapsulation} from '@angular/core';
+import {Component, NgModule, ViewEncapsulation} from '@angular/core';
 import * as path from 'path';
 import * as ts from 'typescript';
 import * as tsc from '@angular/tsc-wrapped';
@@ -87,9 +87,9 @@ export class Extractor {
       const staticType = this.reflectorHost.findDeclaration(absSourcePath, symbol, absSourcePath);
       const annotations = this.staticReflector.annotations(staticType);
       annotations.forEach((annotation) => {
-        if (annotation instanceof NgModuleMetadata) {
+        if (annotation instanceof NgModule) {
           result.ngModules.push(staticType);
-        } else if (annotation instanceof ComponentMetadata) {
+        } else if (annotation instanceof Component) {
           result.components.push(staticType);
         }
       });
@@ -133,8 +133,7 @@ export class Extractor {
                     });
               }));
             }))
-            .then(_ => this.messageBundle)
-            .catch((e) => { console.error(e.stack); });
+            .then(_ => this.messageBundle);
 
     if (errors.length) {
       throw new Error(errors.map(e => e.toString()).join('\n'));

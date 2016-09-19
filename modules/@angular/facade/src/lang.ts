@@ -113,12 +113,6 @@ export function isStrictStringMap(obj: any): boolean {
   return isStringMap(obj) && Object.getPrototypeOf(obj) === STRING_MAP_PROTO;
 }
 
-export function isPromise(obj: any): boolean {
-  // allow any Promise/A+ compliant thenable.
-  // It's up to the caller to ensure that obj.then conforms to the spec
-  return isPresent(obj) && isFunction(obj.then);
-}
-
 export function isArray(obj: any): boolean {
   return Array.isArray(obj);
 }
@@ -271,9 +265,6 @@ export class NumberWrapper {
     }
     throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
   }
-
-  // TODO: NaN is a valid literal but is returned by parseFloat to indicate an error.
-  static parseFloat(text: string): number { return parseFloat(text); }
 
   static get NaN(): number { return NaN; }
 

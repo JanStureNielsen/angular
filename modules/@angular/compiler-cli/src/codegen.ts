@@ -11,7 +11,7 @@
  * Intended to be used in a build step.
  */
 import * as compiler from '@angular/compiler';
-import {ComponentMetadata, NgModuleMetadata, ViewEncapsulation} from '@angular/core';
+import {Component, NgModule, ViewEncapsulation} from '@angular/core';
 import {AngularCompilerOptions, NgcCliOptions} from '@angular/tsc-wrapped';
 import * as path from 'path';
 import * as ts from 'typescript';
@@ -62,9 +62,9 @@ export class CodeGenerator {
       const staticType = this.reflectorHost.findDeclaration(absSourcePath, symbol, absSourcePath);
       const annotations = this.staticReflector.annotations(staticType);
       annotations.forEach((annotation) => {
-        if (annotation instanceof NgModuleMetadata) {
+        if (annotation instanceof NgModule) {
           result.ngModules.push(staticType);
-        } else if (annotation instanceof ComponentMetadata) {
+        } else if (annotation instanceof Component) {
           result.components.push(staticType);
         }
       });
@@ -108,23 +108,19 @@ export class CodeGenerator {
       return ngModules;
     }, <StaticSymbol[]>[]);
     const analyzedNgModules = this.compiler.analyzeModules(ngModules);
-    return Promise
-        .all(fileMetas.map(
-            (fileMeta) => this.compiler
-                              .compile(
-                                  fileMeta.fileUrl, analyzedNgModules, fileMeta.components,
-                                  fileMeta.ngModules)
-                              .then((generatedModules) => {
-                                generatedModules.forEach((generatedModule) => {
-                                  const sourceFile = this.program.getSourceFile(fileMeta.fileUrl);
-                                  const emitPath =
-                                      this.calculateEmitPath(generatedModule.moduleUrl);
-                                  this.host.writeFile(
-                                      emitPath, PREAMBLE + generatedModule.source, false, () => {},
-                                      [sourceFile]);
-                                });
-                              })))
-        .catch((e) => { console.error(e.stack); });
+    return Promise.all(fileMetas.map(
+        (fileMeta) =>
+            this.compiler
+                .compile(
+                    fileMeta.fileUrl, analyzedNgModules, fileMeta.components, fileMeta.ngModules)
+                .then((generatedModules) => {
+                  generatedModules.forEach((generatedModule) => {
+                    const sourceFile = this.program.getSourceFile(fileMeta.fileUrl);
+                    const emitPath = this.calculateEmitPath(generatedModule.moduleUrl);
+                    this.host.writeFile(
+                        emitPath, PREAMBLE + generatedModule.source, false, () => {}, [sourceFile]);
+                  });
+                })));
   }
 
   static create(

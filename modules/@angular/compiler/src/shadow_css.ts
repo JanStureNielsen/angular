@@ -426,7 +426,7 @@ export class ShadowCss {
       return scopedP;
     };
 
-    const sep = /( |>|\+|~)\s*/g;
+    const sep = /( |>|\+|~(?!=))\s*/g;
     const scopeAfter = selector.indexOf(_polyfillHostNoCombinator);
 
     let scoped = '';
@@ -483,12 +483,12 @@ function stripComments(input: string): string {
   return StringWrapper.replaceAllMapped(input, _commentRe, (_: any /** TODO #9100 */) => '');
 }
 
-// all comments except inline source mapping ("/* #sourceMappingURL= ... */")
-const _sourceMappingUrlRe = /[\s\S]*(\/\*\s*#\s*sourceMappingURL=[\s\S]+?\*\/)\s*$/;
+// all comments except inline source mapping
+const _sourceMappingUrlRe = /\/\*\s*#\s*sourceMappingURL=[\s\S]+?\*\//;
 
 function extractSourceMappingUrl(input: string): string {
   const matcher = input.match(_sourceMappingUrlRe);
-  return matcher ? matcher[1] : '';
+  return matcher ? matcher[0] : '';
 }
 
 const _ruleRe = /(\s*)([^;\{\}]+?)(\s*)((?:{%BLOCK%}?\s*;?)|(?:\s*;))/g;

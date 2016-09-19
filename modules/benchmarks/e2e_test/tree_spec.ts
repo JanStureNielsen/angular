@@ -18,9 +18,28 @@ describe('tree benchmark spec', () => {
     });
   });
 
+  it('should work for ng2 static', () => {
+    testTreeBenchmark({
+      url: 'all/benchmarks/src/tree/ng2_static/index.html',
+    });
+  });
+
+  it('should work for ng2 switch', () => {
+    testTreeBenchmark({
+      url: 'all/benchmarks/src/tree/ng2_switch/index.html',
+    });
+  });
+
   it('should work for the baseline', () => {
     testTreeBenchmark({
       url: 'all/benchmarks/src/tree/baseline/index.html',
+      ignoreBrowserSynchronization: true,
+    });
+  });
+
+  it('should work for incremental dom', () => {
+    testTreeBenchmark({
+      url: 'all/benchmarks/src/tree/incremental_dom/index.html',
       ignoreBrowserSynchronization: true,
     });
   });
@@ -40,9 +59,15 @@ describe('tree benchmark spec', () => {
   });
 
   function testTreeBenchmark(openConfig: {url: string, ignoreBrowserSynchronization?: boolean}) {
-    openBrowser(openConfig);
+    openBrowser({
+      url: openConfig.url,
+      ignoreBrowserSynchronization: openConfig.ignoreBrowserSynchronization,
+      params: [{name: 'depth', value: 4}],
+    });
     $('#createDom').click();
     expect($('#root').getText()).toContain('0');
+    $('#createDom').click();
+    expect($('#root').getText()).toContain('A');
     $('#destroyDom').click();
     expect($('#root').getText()).toEqual('');
   }
